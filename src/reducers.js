@@ -1,48 +1,53 @@
+// reducers.js
 import {
+  GET_FAVS_FROM_LS,
   FAV_ADD,
   FAV_REMOVE,
   FETCH_SUCCESS,
   FETCH_LOADING,
   FETCH_ERROR,
-  GET_FAVS_FROM_LS,
-} from "./actions";
+  saveFavorites, 
+  loadFavorites, 
+} from './actions';
 
-const initial = {
-  favs: [],
-  current: null,
+const initialState = {
+  loading: false,
   error: null,
-  loading: true,
+  activity: null,
+  favorites: loadFavorites(),
 };
 
-function writeFavsToLocalStorage(state) {
-  localStorage.setItem("s10g4", JSON.stringify(state.favs));
-}
 
-function readFavsFromLocalStorage() {
-  return JSON.parse(localStorage.getItem("s10g4"));
-}
 
-export function myReducer(state = initial, action) {
+export const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case FAV_ADD:
-      return state;
-
-    case FAV_REMOVE:
-      return state;
-
-    case FETCH_SUCCESS:
-      return state;
-
     case FETCH_LOADING:
-      return state;
-
+      return { ...state, loading: true, error: null };
+    case FETCH_SUCCESS:
+      return { ...state, activity: action.payload, loading: false };
     case FETCH_ERROR:
-      return state;
+      return { ...state, error: action.payload, loading: false };
+      case FAV_ADD:
+  const newFavs = [...state.favorites, action.payload];
+  saveFavorites(newFavs);
+  return {
+    ...state,
+    favorites: newFavs,
+  };
 
+case FAV_REMOVE:
+  const filteredFavs = state.favorites.filter((item) => item.key !== action.payload);
+  saveFavorites(filteredFavs);
+  return {
+    ...state,
+    favorites: filteredFavs,
+  };
+
+      
     case GET_FAVS_FROM_LS:
-      return state;
-
+      const loadedFavorites = loadFavorites();
+      return { ...state, favorites: loadedFavorites };
     default:
       return state;
   }
-}
+};
